@@ -35,9 +35,7 @@ class CreateEmployeesTable extends Migration
             $table->decimal('benefits_payed',16);
             $table->decimal('amount',16);
             $table->timestamps();
-        });
 
-        Schema::table('employees', function($table) {
             $table->foreign('department')->references('name')->on('departments')->onUpdate('cascade')->onDelete('cascade');
         });
     }

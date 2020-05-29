@@ -12,26 +12,17 @@ use App\Employee;
 class PaymentReportController extends Controller
 {
 
+    /**
+     * PaymentReportController constructor.
+     */
     public function __construct()
     {
         $this->middleware('auth');
     }
-    public function create($id)
-    {   
-        $employee = Employee::findOrFail($id);
-        
-        $payment = new PaymentReport();
-        $payment->employee_id = $employee->id;
-        $payment->salary = $employee->salary;
-        $payment->department = $employee->department;
-        $payment->amount_paid = request('amount_paid');
-        $payment->paid_by = auth()->user()->id;
-        $payment->remark = request('remark');
-        $payment->save();
-        
-        return redirect("/employee")->with("success","$employee->name was paid successfully");
-    }
 
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
         $departments = Department::all();
@@ -49,9 +40,33 @@ class PaymentReportController extends Controller
             '11' => 'November',
             '12' => 'December',
         ];
-        return view('report.index',['departments' => $departments,'months' => $months]);
+
+        return view('report.index', compact('departments', 'months'));
     }
 
+    /**
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function create($id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        $payment = new PaymentReport();
+        $payment->employee_id = $employee->id;
+        $payment->salary = $employee->salary;
+        $payment->department = $employee->department;
+        $payment->amount_paid = request('amount_paid');
+        $payment->paid_by = auth()->user()->id;
+        $payment->remark = request('remark');
+        $payment->save();
+
+        return redirect("/employee")->with("success", "$employee->name was paid successfully");
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function show()
     {
         $departments = Department::all();
@@ -78,12 +93,9 @@ class PaymentReportController extends Controller
         $start_year = request('start_year');
         $start_date = $start_year."-".$start_month;
 
-
-        
         $report = PaymentReport::where('department', "$department")->where('created_at', 'like', "$start_date%")->get();
 
         $output = '
-        
         <div class="table-responsive">
         <table class="table table-bordered">
         <caption class="h4 text-danger" style="caption-side:top">Payment report for '. request('department').' </caption>
@@ -99,27 +111,25 @@ class PaymentReportController extends Controller
           </thead>
           <tbody>';
 
-          
-           foreach($report AS $args):
+        foreach($report AS $args):
 
             $output.='
             <tr>
-            <td>'.htmlspecialchars($args->employee->name).'</td>  
+            <td>'.htmlspecialchars($args->employee->name).'</td>
             <td>'.htmlspecialchars(config("app.curr").$args->salary).'</td>
-            <td>'.htmlspecialchars(config("app.curr").$args->amount_paid).'</td> 
+            <td>'.htmlspecialchars(config("app.curr").$args->amount_paid).'</td>
             <td>'.htmlspecialchars($args->department).'</td>
             <td>'.htmlspecialchars($args->remark).'</td>
             <td>'.htmlspecialchars($args->created_at).'</td>
             </tr> ';
 
-           endforeach;
+        endforeach;
 
-           $output.='
+        $output.='
           </tbody>
         </table>
         </div>';
 
-
-        return view('report.index',['departments' => $departments,'months' => $months,'report' => $report,'output' => $output]);
+        return view('report.index', compact('departments', 'months', 'report', 'output'));
     }
 }

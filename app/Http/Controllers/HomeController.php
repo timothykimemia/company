@@ -28,6 +28,7 @@ class HomeController extends Controller
         $employee = Employee::all();
         $latest_employee = Employee::orderBy('created_at','DESC')->limit(5)->get();
         $department = Department::all();
-        return view('dashboard.index',['employee' => $employee,'department' => $department,'latest_employee' => $latest_employee]);
+
+        return view('dashboard.index', compact('employee', 'department', 'latest_employee'));
     }
 }

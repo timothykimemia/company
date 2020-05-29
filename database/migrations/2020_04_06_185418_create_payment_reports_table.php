@@ -22,12 +22,9 @@ class CreatePaymentReportsTable extends Migration
             $table->string('remark');
             $table->string('department',50);
             $table->timestamps();
-        });
 
-        Schema::table('payment_reports', function($table) {
             $table->foreign('employee_id')->references('id')->on('employees')->onUpdate('cascade')->onDelete('cascade');
-            
-            $table->foreign('paid_by')->references('id')->on('users');
+            $table->foreign('paid_by')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
